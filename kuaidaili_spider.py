@@ -8,7 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 from c_spider import CSpider
-
+import useful
 
 class KuaidailiSpider(CSpider):
 
