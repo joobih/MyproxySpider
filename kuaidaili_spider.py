@@ -2,18 +2,18 @@
 # coding=utf-8
 
 import sys
-sys.path.append("supmodule/CSpider")
+sys.path.append("supmodule/BaseSpider")
 
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-from c_spider import CSpider
+from base_spider import BaseSpider
 import useful
 
-class KuaidailiSpider(CSpider):
+class KuaidailiSpider(BaseSpider):
 
     def __init__(self,url):
-        CSpider.__init__(self,url)
+        BaseSpider.__init__(self,url)
 
         #子类调用父类方法的其他方式
 #        super(KuaidailiSpider,self).__init__(url)
