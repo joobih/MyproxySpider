@@ -1,6 +1,6 @@
-[submodule "submodule/CSpider"]
-	path = submodule/CSpider
-	url = git@github.com:joobih/CSpider.git
+[submodule "submodule/BaseSpider"]
+	path = submodule/BaseSpider
+	url = git@github.com:joobih/BaseSpider.git
 [submodule "submodule/Common"]
 	path = submodule/Common
 	url = git@github.com:joobih/Common.git
