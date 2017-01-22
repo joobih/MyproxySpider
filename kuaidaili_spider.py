@@ -12,8 +12,11 @@ import useful
 
 class KuaidailiSpider(CSpider):
 
-    def __init__(self):
-        CSpider.__init__(self)
+    def __init__(self,url):
+        CSpider.__init__(self,url)
+
+        #子类调用父类方法的其他方式
+#        super(KuaidailiSpider,self).__init__(url)
 
     def parser_data(self,html):
         bs = BeautifulSoup(html,"html.parser")
