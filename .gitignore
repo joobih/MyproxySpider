@@ -1,0 +1,7 @@
+*.[oa]
+dbg
+*.pyc
+*.conf
+*.cfg
+*.[bB]
+
