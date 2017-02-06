@@ -10,6 +10,10 @@ from datetime import datetime
 from base_spider import BaseSpider
 import useful
 import ConfigParser
+import httplib
+import time
+
+httplib.HTTPConnection.debuglevel = 1
 
 from model.models import *
 
@@ -23,6 +27,7 @@ class KuaidailiSpider(BaseSpider):
 
     def parser_data(self,html):
         try:
+            html = html.decode("utf-8")
             bs = BeautifulSoup(html,"html.parser")
             ip_dict = []
             divs = bs.find_all("div",id = "list")
@@ -41,9 +46,10 @@ class KuaidailiSpider(BaseSpider):
                 port = tds[1].text
                 anonymous = tds[2].text
                 protocol_type = tds[3].text
-                support = 0                 #GET/POST
+                support = "GET/POST"                 #GET/POST
                 address = tds[4].text
                 respond_speed = tds[5].text
+                respond_speed = float(respond_speed[:-1])
                 last_verification = tds[6].text
                 is_available = "NO"
                 fail_time_start = datetime.now()
@@ -56,7 +62,8 @@ class KuaidailiSpider(BaseSpider):
                     "address":address,
                     "respond_speed":respond_speed,
                     "last_verification":last_verification,
-                    "fail_time_start":fail_time_start
+                    "fail_time_start":fail_time_start,
+                    "is_available":is_available
                 }
                 ip_dict.append(data)
             return ip_dict
@@ -83,11 +90,11 @@ class KuaidailiSpider(BaseSpider):
         print data
         try:
             for d in data:
-                p = get(p for p in Porxy if p.ip == d["ip"] and p.port == d["port"])
+                p = get(p for p in Proxy if p.ip == d["ip"] and p.port == d["port"])
                 if not p:
                     new_ip = Proxy(ip = d["ip"],port = d["port"],anonymous = d["anonymous"],protocol_type = d["protocol_type"],
                                   support = d["support"],address = d["address"],respond_speed = d["respond_speed"],
-                                  last_verification = d["last_verification"],fail_time_start = d["fail_time_start"])
+                                  last_verification = d["last_verification"],fail_time_start = d["fail_time_start"],is_available = d["is_available"])
                     commit()
         except Exception,e:
             print "KuaidailiSpider save_to_db occure a Exception:{}".format(e)
@@ -102,7 +109,8 @@ class KuaidailiSpider(BaseSpider):
         }
         for u in urls:
             print u
-            r = self.s.get(u,headers = self.headers,proxies = proxy)
+            r = self.s.get(u,headers = self.headers)#,proxies = proxy)
+            time.sleep(2)
             html = r.content
             print html
             data = self.parser_data(html)
