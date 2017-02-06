@@ -2,7 +2,7 @@
 # coding=utf-8
 
 import sys
-sys.path.append("supmodule/BaseSpider")
+sys.path.append("submodule/BaseSpider")
 
 import requests
 from bs4 import BeautifulSoup
@@ -25,8 +25,15 @@ class KuaidailiSpider(BaseSpider):
         try:
             bs = BeautifulSoup(html,"html.parser")
             ip_dict = []
-            divs = bs.find_all("div",id = "list")[0]
-            tbody = divs.find_all("tbody")[0]
+            divs = bs.find_all("div",id = "list")
+            if not divs:
+                print "html have not ip list"
+                return []
+            divs = divs[0]
+            tbody = divs.find_all("tbody")
+            if not tbody:
+                return []
+            tbody = tbody[0]
             trs = tbody.find_all("tr")
             for tr in trs:
                 tds = tr.find_all("td")
@@ -64,14 +71,16 @@ class KuaidailiSpider(BaseSpider):
             urls.append(url)
             url = "http://www.kuaidaili.com/free/intr/{}/".format(i)
             urls.append(url)
-            urls = "http://www.kuaidaili.com/free/outtr/{}/".format(i)
+            url = "http://www.kuaidaili.com/free/outtr/{}/".format(i)
             urls.append(url)
             url = "http://www.kuaidaili.com/free/outha/{}/".format(i)
             urls.append(url)
+#            print url
         return urls
 
     @db_session
-    def save_to_db(data):
+    def save_to_db(self,data):
+        print data
         try:
             for d in data:
                 p = get(p for p in Porxy if p.ip == d["ip"] and p.port == d["port"])
@@ -79,10 +88,28 @@ class KuaidailiSpider(BaseSpider):
                     new_ip = Proxy(ip = d["ip"],port = d["port"],anonymous = d["anonymous"],protocol_type = d["protocol_type"],
                                   support = d["support"],address = d["address"],respond_speed = d["respond_speed"],
                                   last_verification = d["last_verification"],fail_time_start = d["fail_time_start"])
-                    commit(new_ip)
+                    commit()
         except Exception,e:
             print "KuaidailiSpider save_to_db occure a Exception:{}".format(e)
             return
+
+    def run(self):   
+#        html = self.index()
+        urls = self.parser_url()
+#        result = []
+        proxy = {
+            "http":"http://118.123.245.154:3128"
+        }
+        for u in urls:
+            print u
+            r = self.s.get(u,headers = self.headers,proxies = proxy)
+            html = r.content
+            print html
+            data = self.parser_data(html)
+            if data: 
+                self.save_to_db(data)
+                #result.extend(data)
+#        return result
 
 
 if __name__ == "__main__":
@@ -92,7 +119,7 @@ if __name__ == "__main__":
     conf_file = sys.argv[1]
     conf = ConfigParser.ConfigParser()
     conf.read(conf_file)
-    m_host = conf.get("msyql","host")
+    m_host = conf.get("mysql","host")
     m_db = conf.get("mysql","db")
     m_user = conf.get("mysql","user")
     m_password = conf.get("mysql","password")
