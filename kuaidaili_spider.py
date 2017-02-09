@@ -73,7 +73,7 @@ class KuaidailiSpider(BaseSpider):
 
     def parser_url(self):
         urls = []
-        for i in range(1,1475):
+        for i in range(1,100):
             url = "http://www.kuaidaili.com/free/inha/{}/".format(i)
             urls.append(url)
             url = "http://www.kuaidaili.com/free/intr/{}/".format(i)
